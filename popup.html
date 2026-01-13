@@ -3,13 +3,139 @@
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: sans-serif; padding: 10px; white-space: pre-line; width: 300px; }
-    #reload { margin-top: 10px; display: none; }
+    body {
+      font-family: sans-serif;
+      padding: 0;
+      margin: 0;
+      width: 350px;
+      transition: background-color 0.3s;
+    }
+    .container {
+      padding: 12px;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .status-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .url-container {
+      flex: 1;
+      min-width: 0;
+    }
+    .url-label {
+      font-size: 9px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .current-url {
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    #status {
+      margin-bottom: 12px;
+      line-height: 1.4;
+      font-size: 12px;
+      white-space: pre-line;
+      word-wrap: break-word;
+      color: rgba(0, 0, 0, 0.85);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    #status strong {
+      font-weight: 700;
+      color: rgba(0, 0, 0, 0.95);
+      background-color: rgba(255, 255, 255, 0.5);
+      padding: 2px 4px;
+      border-radius: 3px;
+      display: inline-block;
+      line-height: 1.5;
+    }
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    button {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    #reload {
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: none;
+    }
+    #reload:hover {
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+    #copy {
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+    }
+    #copy:hover {
+      background-color: rgba(0, 0, 0, 0.85);
+    }
+    #copy.copied {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Color-specific backgrounds */
+    .container.green {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    }
+    .container.yellow {
+      background: linear-gradient(135deg, #fff9c4 0%, #ffe082 100%);
+    }
+    .container.red {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    }
+    .container.blue {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    }
+    .container.grey {
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    }
   </style>
 </head>
 <body>
-  <div id="status">Loading status…</div>
-  <button id="reload">🔄 Reload Page</button>
+  <div class="container" id="container">
+    <div class="header">
+      <div class="status-indicator" id="colorIndicator"></div>
+      <div class="url-container">
+        <div class="url-label">Current Page</div>
+        <div class="current-url" id="currentUrl" title="">Loading...</div>
+      </div>
+    </div>
+    <div id="status">Loading status…</div>
+    <div class="button-group">
+      <button id="reload">🔄 Reload Page</button>
+      <button id="copy">📋 Copy Status</button>
+    </div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
