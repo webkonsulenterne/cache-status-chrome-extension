@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Cache Status Checker",
+  "version": "2.8",
+  "description": "Displays cache status in popup (Cloudflare, LiteSpeed, browser cache, and reload suggestion).",
+  "permissions": [
+    "webRequest",
+    "tabs",
+    "scripting",
+    "storage",
+    "webNavigation"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Click to view cache status"
+  }
+}
