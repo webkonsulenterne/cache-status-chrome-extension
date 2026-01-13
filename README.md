@@ -138,7 +138,7 @@ Each cache status has a unique gradient background in the popup:
 - `icon-blue.png` - Browser cache icon
 - `icon-grey.png` - No cache system detected icon
 
-## Recent Enhancements (v2.8+)
+## Recent Enhancements (v2.9)
 
 ### Badge Text on Icon
 - Extension icon now shows status text (`HIT`, `MISS`, `CACHE`, `N/A`)
