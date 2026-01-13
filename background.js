@@ -1,23 +1,31 @@
 
 let tabCacheStatus = {};
+let tabUpdateTimers = {};
 
 chrome.webRequest.onCompleted.addListener(
   function (details) {
     if (details.type !== "main_frame" || details.tabId < 0) return;
     const tabId = details.tabId;
 
-    chrome.scripting.executeScript({
-      target: { tabId: tabId },
-      func: () => performance.getEntriesByType("navigation")[0]?.transferSize === 0,
-    }, (results) => {
-      const headers = details.responseHeaders.reduce((acc, header) => {
-        acc[header.name.toLowerCase()] = header.value;
-        return acc;
-      }, {});
+    // Clear any existing timer for this tab
+    if (tabUpdateTimers[tabId]) {
+      clearTimeout(tabUpdateTimers[tabId]);
+    }
 
-      const cfStatus = (headers["cf-cache-status"] || "N/A").toUpperCase();
-      const lsCache = (headers["x-litespeed-cache"] || "N/A").toUpperCase();
-      const browserCacheUsed = !chrome.runtime.lastError && results && results[0]?.result === true;
+    // Wait 300ms before updating status to ensure we get the final cache status
+    tabUpdateTimers[tabId] = setTimeout(() => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabId },
+        func: () => performance.getEntriesByType("navigation")[0]?.transferSize === 0,
+      }, (results) => {
+        const headers = details.responseHeaders.reduce((acc, header) => {
+          acc[header.name.toLowerCase()] = header.value;
+          return acc;
+        }, {});
+
+        const cfStatus = (headers["cf-cache-status"] || "N/A").toUpperCase();
+        const lsCache = (headers["x-litespeed-cache"] || "N/A").toUpperCase();
+        const browserCacheUsed = !chrome.runtime.lastError && results && results[0]?.result === true;
 
       let icon = "icon-red.png";
       let message = "";
@@ -66,11 +74,15 @@ chrome.webRequest.onCompleted.addListener(
         badgeColor = "#F44336";
       }
 
-      chrome.action.setIcon({ path: { 16: icon, 48: icon, 128: icon }, tabId: tabId });
-      chrome.action.setBadgeText({ text: badgeText, tabId: tabId });
-      chrome.action.setBadgeBackgroundColor({ color: badgeColor, tabId: tabId });
-      tabCacheStatus[tabId] = { icon, message, showReload };
-    });
+        chrome.action.setIcon({ path: { 16: icon, 48: icon, 128: icon }, tabId: tabId });
+        chrome.action.setBadgeText({ text: badgeText, tabId: tabId });
+        chrome.action.setBadgeBackgroundColor({ color: badgeColor, tabId: tabId });
+        tabCacheStatus[tabId] = { icon, message, showReload };
+
+        // Clean up timer
+        delete tabUpdateTimers[tabId];
+      });
+    }, 300);
   },
   { urls: ["<all_urls>"] },
   ["responseHeaders"]
@@ -92,4 +104,13 @@ chrome.webNavigation.onCommitted.addListener((info) => {
   if (status) {
     chrome.action.setIcon({ path: { 16: status.icon, 48: status.icon, 128: status.icon }, tabId: info.tabId });
   }
+});
+
+// Clean up timers and cache when tab is closed
+chrome.tabs.onRemoved.addListener((tabId) => {
+  if (tabUpdateTimers[tabId]) {
+    clearTimeout(tabUpdateTimers[tabId]);
+    delete tabUpdateTimers[tabId];
+  }
+  delete tabCacheStatus[tabId];
 });
